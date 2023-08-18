@@ -1,0 +1,27 @@
+{% extends 'demo/_base.html' %}
+{% block bootstrap5_title %}{{ block.super }} - Index{% endblock bootstrap5_title %}
+{% block page_content %}
+<div aria-live="polite" aria-atomic="true" class="position-relative">
+    <div class="toast-container top-0 end-0 p-3" hx-ext="sse"
+         sse-connect="{% url 'events' event_name='toasts' %}"
+         sse-swap="message" id="toast-container" hx-swap="beforeend">
+    </div>
+</div>
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h2>Demo Application</h2>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+            <span data-feather="calendar"></span>
+            This week
+          </button>
+        </div>
+      </div>
+    <div class="container">
+        <p>This is some text</p><button type="submit" hx-get="{% url 'send-event' %}">Press me</button>
+    </div>
+
+{% endblock page_content %}

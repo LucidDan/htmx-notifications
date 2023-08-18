@@ -1,0 +1,152 @@
+[project]
+name = ""
+version = "1.0.0"
+description = ""
+authors = [
+    { name = "Dan Sloan", email = "827555+LucidDan@users.noreply.github.com" },
+]
+dependencies = [
+    "django[argon2]>=4.2.2",
+    "django-stubs-ext>=4.2.1",
+    "daphne>=4.0.0",
+    "Twisted[http2,tls]>=22.10.0",
+    "django-bootstrap5>=23.3",
+    "django-htmx>=1.16.0",
+    "redis>=4.5.5",
+]
+requires-python = ">=3.11"
+license = "GPL-3.0"
+
+
+[project.optional-dependencies]
+postgres = ["psycopg[binary]>=3.1.9",]
+
+
+[tool.pdm.dev-dependencies]
+mypy = [
+    "mypy>=1.3.0",
+    "django-stubs>=4.2.1",
+]
+test = [
+    "pytest-django>=4.5.2",
+    "pytest-xdist>=3.3.1",
+    "pytest>=7.3.2",
+    "pytest-factoryboy>=2.5.1",
+]
+uitest = [
+    "pytest-playwright>=0.3.3",
+    "playwright>=1.36.0",
+]
+lint = [
+    "ruff>=0.0.272",
+    "black>=23.3.0",
+]
+dev = [
+    "safety>=2.3.4",
+    "pre-commit>=3.3.3",
+    "sendria>=2.2.2",
+]
+
+
+[tool.black]
+line-length = 120
+target-version = ["py311"]
+
+
+[tool.ruff]
+# Same as Black.
+line-length = 120
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["A", "B", "C", "D", "E", "F"]
+unfixable = []
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".eggs",
+    ".git",
+    ".github",
+    ".ruff_cache",
+    ".venv",
+    "migrations",
+    "static",
+]
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+# Assume Python 3.11.
+target-version = "py311"
+
+
+[tool.pytest.ini_options]
+minversion = "7.1"
+required_plugins = [
+    "pytest-django",
+    "pytest-factoryboy",
+    "pytest-xdist"
+]
+django_find_project = true
+DJANGO_SETTINGS_MODULE = "demo.settings"
+addopts = "--strict-markers"
+# Define custom markers here (required with strict-markers)...
+markers = [
+]
+testpaths = [
+    "tests"
+]
+xfail_strict = "True"
+filterwarnings = [
+    "ignore::DeprecationWarning:widget_tweaks",
+    "ignore::DeprecationWarning:pkg_resources"
+]
+
+
+[tool.coverage.run]
+plugins = [
+    "django_coverage_plugin"
+]
+branch = true
+source = [
+    "demo/",
+]
+omit = [
+    "manage.py",
+    "*migrations*"
+]
+disable_warnings = [
+    "no-data-collected"
+]
+
+
+[tool.coverage.report]
+skip_covered = true
+skip_empty = true
+sort = "Cover"
+
+
+[tool.coverage.json]
+pretty_print = true
+
+
+[tool.coverage.xml]
+output = "rpt-coverage-pytest.xml"
+
+
+[tool.django-stubs]
+django_settings_module = "demo.settings"
+
+
+[tool.mypy]
+python_version = '3.11'
+plugins = [
+    'mypy_django_plugin.main',
+]
+files = [
+    "manage.py",
+    "demo/",
+    "tests/"
+]
+junit_xml = "rpt-unit-mypy.xml"
+
+
+[[tool.mypy.overrides]]
+# auto-generated migrations don't have types (so far)
+module = '*.migrations.*'
+ignore_errors = true
