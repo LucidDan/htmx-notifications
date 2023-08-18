@@ -25,8 +25,10 @@ def send_notification(event: str, subject: str, message: str, ts: datetime, temp
         event,
         json.dumps({
             "template": template,
-            "subject": subject,
-            "message": message,
-            "message_time": ts.timestamp(),
+            "context": {
+                "subject": subject,
+                "message": message,
+                "message_time": ts.timestamp(),
+            },
         })
     )

@@ -37,12 +37,15 @@ async def streamed_events(event_name: str, request: HttpRequest) -> AsyncGenerat
                 if msg is None:
                     continue
                 data = json.loads(msg["data"])
-                if data.get("template", "") == "STOP":
+                ctx = data["context"]
+                template = data.get("template", "")
+                if template == "STOP":
                     break
-                template = data.pop("template")
-                data["message_time"] = datetime.fromtimestamp(data["message_time"])
-                # Strip out the newlines, to avoid issues
-                text = render_to_string(template, data, request).replace("\n", "")
+                elif not template:
+                    continue
+                ctx["message_time"] = datetime.fromtimestamp(ctx["message_time"])
+                # Strip out the newlines, to avoid issues. Clunky, I know, fix this properly later.
+                text = render_to_string(template, ctx, request).replace("\n", "")
                 yield f"data: {text}\n\n"
     except asyncio.CancelledError:
         # Do any cleanup when the client disconnects
