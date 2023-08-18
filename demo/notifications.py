@@ -11,13 +11,13 @@ from django.utils.timezone import now
 
 
 @cache
-def get_client() -> redis.Redis:
-    return redis.from_url(settings.REDIS_URL)
+def get_async_client() -> aredis.Redis:
+    return aredis.from_url(settings.REDIS_URL)
 
 
 @cache
-def get_async_client() -> aredis.Redis:
-    return aredis.from_url(settings.REDIS_URL)
+def get_client() -> redis.Redis:
+    return redis.from_url(settings.REDIS_URL)
 
 
 def send_notification(event: str, subject: str, message: str, ts: datetime, template: str = "demo/toast.html",):

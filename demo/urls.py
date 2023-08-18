@@ -7,6 +7,7 @@ separate views.py file.
 """
 import asyncio
 import json
+import random
 from datetime import datetime
 from typing import AsyncGenerator
 
@@ -20,6 +21,8 @@ from demo.notifications import get_async_client, send_notification
 
 
 def index(request: HttpRequest) -> HttpResponseBase:
+    """Display the main home page"""
+
     return render(request, "demo/index.html", {})
 
 
@@ -43,14 +46,13 @@ async def streamed_events(event_name: str, request: HttpRequest) -> AsyncGenerat
                 yield f"data: {text}\n\n"
     except asyncio.CancelledError:
         # Do any cleanup when the client disconnects
-
-        # Note: this will only be called starting from Django 5.0
-        # until then, there is no cleanup, and you get some spammy
-        # 'took too long to shut down and was killed' log messages from Daphne etc.
+        # Note: this will only be called starting from Django 5.0; until then, there is no cleanup,
+        # and you get some spammy 'took too long to shut down and was killed' log messages from Daphne etc.
         raise
 
 
-async def events(request: HttpRequest, event_name: str) -> HttpResponseBase:
+def events(request: HttpRequest, event_name: str) -> HttpResponseBase:
+    """Start an SSE connection for event_name"""
     if request.method != "GET":
         return HttpResponseNotAllowed(["GET", ])
     return StreamingHttpResponse(
@@ -60,23 +62,31 @@ async def events(request: HttpRequest, event_name: str) -> HttpResponseBase:
 
 
 def send_event(request: HttpRequest) -> HttpResponseBase:
+    """A little endpoint to send requests to which will trigger an event to be enqueued"""
+
+    location = random.choice(["Kenya", "Bolivia", "Portugal", "Spain", "Scotland", "Thailand"])
+    month = random.choice(["May", "June", "July", "April", "August", "September"])
+    year = random.choice(["2023", "2024", "2025"])
+
     send_notification(
         event="toasts",
         subject="Trip Cancellation",
-        message="The trip 'Kenya May 2024' has been cancelled.",
+        message=f"The trip '{location} {month} {year}' has been cancelled.",
         ts=now(),
         template="demo/toast.html",
     )
     return render(request, "demo/send_event.html", {})
 
 
-async def sse(request: HttpRequest) -> HttpResponseBase:
+def sse(request: HttpRequest) -> HttpResponseBase:
+    """Small demo of the basic idea of SSE without any redis or other complexity"""
+
     async def stream(request: HttpRequest) -> AsyncGenerator[str, None]:
         counter = 0
         while True:
             counter += 1
-            asyncio.sleep(5.0)
-            yield f"data: {counter}\n\n"
+            await asyncio.sleep(5.0)
+            yield f"data: <div>{counter}</div>\n\n"
 
     return StreamingHttpResponse(
         streaming_content=stream(request),
@@ -88,5 +98,5 @@ urlpatterns = [
     path("", index, name="home"),
     path("send/", send_event, name="send-event"),
     path("events/<str:event_name>/", events, name="events"),
-    path("sse/", sse, name="basic-sse")
+    path("sse/", sse, name="basic-sse"),
 ]
