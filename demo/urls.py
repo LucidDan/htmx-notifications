@@ -85,8 +85,8 @@ async def sse(request: HttpRequest) -> HttpResponseBase:
 
 
 urlpatterns = [
+    path("", index, name="home"),
+    path("send/", send_event, name="send-event"),
+    path("events/<str:event_name>/", events, name="events"),
     path("sse/", sse, name="basic-sse")
 ]
-path("", index, name="home"),
-path("send/", send_event, name="send-event"),
-path("events/<str:event_name>/", events, name="events"),
